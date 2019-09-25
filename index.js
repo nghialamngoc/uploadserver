@@ -2,6 +2,7 @@ var express = require('express');
 var multer = require('multer');
 var path = require('path');
 var bodyParser = require('body-parser');
+var fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb){
@@ -51,5 +52,18 @@ app.post('/download', function(req, res, next){
   res.sendFile(filepath + '.jpg');
 })
 
+app.get('/defectlist', function(req, res, next){
+  var data = JSON.parse(fs.readFileSync('./DB_Store/defectlist.json'));   
+  res.json({defectList: data.DefectList, msg: 'get defect list is success'})
+})
+
+app.post('/defectlist', function(req, res, next){
+  var defectList = JSON.parse(fs.readFileSync('./DB_Store/defectlist.json'));
+  
+  defectList.DefectList.push(req.body.newDefect);
+  console.log(defectList)
+  fs.writeFileSync('./DB_Store/defectlist.json', JSON.stringify(defectList))
+  res.json({msg: 'Create new defect success'});
+});
 
 module.exports = app;
